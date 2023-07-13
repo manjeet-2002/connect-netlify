@@ -4,7 +4,7 @@ import '../App.css'
 import { auth,db } from '../firebase-config';
 import {useNavigate} from 'react-router-dom'
 import {Box,Typography,Modal,Fab} from '@mui/material';
-
+import MapFrame from "./MapFrame";
 
 
 function Donate({isAuth}) {
@@ -13,9 +13,20 @@ function Donate({isAuth}) {
   const [contriLocation,setContriLocation] = useState("");
   const [makeContri,setMakeContri] = useState(false);
   const [makeClaim,setMakeClaim] = useState(false);
+  const [contriLat,setContriLat] = useState(0);
+  const [contriLong,setContriLong] = useState(0);
+  const [lat,setLat] = useState(0);
+  const [lon,setLon] = useState(0);
+
 
   const [open, setOpen] = useState(false);
-  const handleOpen = () => setOpen(true);
+
+  const handleOpen = (lati,longi) =>{
+    setLat(lati);
+    setLon(longi);
+    setOpen(true);
+  }
+  
   const handleClose = () => setOpen(false);
 
 
@@ -38,16 +49,22 @@ function Donate({isAuth}) {
 
   const contriCollectionRef = collection(db,"contributions");
 
+  
+ 
   const [contriList,setContriList] = useState([]);
 
-const makeContributionLive=async ()=>{
-    await addDoc(contriCollectionRef, {title:contriTitle,type:contriType,location:contriLocation,claimed:false,owner:{name:auth.currentUser.displayName,id:auth.currentUser.uid}})
+
+  const makeContributionLive=async ()=>{
+    await addDoc(contriCollectionRef, {title:contriTitle,type:contriType,location:contriLocation,lati:contriLat,longi:contriLong,claimed:false,owner:{name:auth.currentUser.displayName,id:auth.currentUser.uid}})
     setContriLocation("");
     setContriTitle("");
     setContriType("");
     setMakeContri(!makeContri);
     console.log("makeContributionLive Called");
   }
+
+
+
 
 const updateClaim=async(id)=>{
   if(isAuth){
@@ -64,14 +81,22 @@ const updateClaim=async(id)=>{
 }
 
   useEffect(()=>{
+  
     const getContris = async () =>{  
         const data = await getDocs(contriCollectionRef);
         setContriList(data.docs.map((doc)=> ({...doc.data(), id:doc.id})));
         console.log("getContris Called");
     };
+   
     getContris();
+    
+   
   },[makeContri,makeClaim]);
 
+  useEffect(()=>{
+    if(contriLong&&contriLat)
+      makeContributionLive();
+  },[contriLat,contriLong]);
 
   return (
     <div className='contri-page'>
@@ -93,13 +118,23 @@ const updateClaim=async(id)=>{
           <input placeholder='Enter title'  value={contriTitle} onChange={(event)=>{setContriTitle(event.currentTarget.value)}}/>
         </div>
         <div className='contri-location'>
-          <label>location: </label>
-          <input placeholder='Enter location'  value={contriLocation} onChange={(event)=>{setContriLocation(event.currentTarget.value)}}/>
+          <label>Current location: </label>
+          <input placeholder='Name of your current location'  value={contriLocation} onChange={(event)=>{setContriLocation(event.currentTarget.value)}}/>
         </div>
         
       </div>}
       <div className='contri-button'>
-        {isAuth?<button onClick={makeContributionLive}>Make Contribution Live</button>:<button onClick={()=>{navigate("/login")}}>Login to start a contribution</button>}
+        {isAuth?<button onClick={(e)=>{
+
+          navigator.geolocation.getCurrentPosition(position=>{
+            const {latitude,longitude} = position.coords;
+            
+            setContriLat(latitude);
+            setContriLong(longitude);
+            
+          });
+          
+        }}>Make Contribution Live</button>:<button onClick={()=>{navigate("/login")}}>Login to start a contribution</button>}
       </div>
       
 
@@ -119,7 +154,9 @@ const updateClaim=async(id)=>{
 
       {contriList.map((contri)=>{
           return (
-            <div  className='collect-card' onClick={handleOpen}>  
+            <div  className='collect-card' onClick={(e)=>{
+              handleOpen(contri.lati,contri.longi);
+            }}> 
 
               <div className='collect-card-header'>
                   <h3 className='collect-card-title'>{contri.title}</h3>
@@ -160,8 +197,7 @@ const updateClaim=async(id)=>{
               X
             </Fab>
           </div>
-          
-         
+          <MapFrame lati={lat} longi={lon}/>
         </Box>
       </Modal>
 

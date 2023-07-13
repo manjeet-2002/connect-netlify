@@ -1,13 +1,14 @@
 import React from 'react'
 import "../App.css";
-import {auth,provider} from '../firebase-config';
+
+import {auth, provider} from '../firebase-config';
 import {signInWithPopup,signOut} from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 
 
 
 function Login({setIsAuth,isAuth,userName,setUserName}) {
-
+    
     let navigate = useNavigate();
     const signInWithGoogle=()=>{
         signInWithPopup(auth,provider).then((result)=>{

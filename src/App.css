@@ -158,6 +158,7 @@ span {
   }
 }
 
+
 .modal-header{
   display: flex;
   align-items: center;
@@ -371,7 +372,11 @@ blockquote{
 .scroll-one h2{
   margin-bottom:0.5rem;
 }
-
+/*map*/
+#mapFrame{
+  border-radius: 10px;
+  
+}
 /* community page css */
 
 
