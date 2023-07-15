@@ -38,7 +38,7 @@ function Community({ isAuth }) {
       await updateDoc(docRef,updateLike);
     }
     else{
-      likes[auth.currentUser.uid]="1"
+      likes[auth.currentUser.uid]=auth.currentUser.displayName;
       const updateLikes = {likes:likes};
       await updateDoc(docRef,updateLikes);
       
