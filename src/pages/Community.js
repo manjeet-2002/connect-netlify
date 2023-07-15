@@ -28,10 +28,22 @@ function Community({ isAuth }) {
   };
 
 
-  const updateLike = async (id, like) => {
+  const updateLike = async (id, likes) => {
     const docRef = doc(db, "posts", id);
-    const upadatedLike = { likes: like + 1 };
-    await updateDoc(docRef, upadatedLike);
+
+    if(likes.hasOwnProperty(auth.currentUser.uid)){
+      const currUser = auth.currentUser.uid;
+      delete likes[currUser];
+      const updateLike = {likes: likes};
+      await updateDoc(docRef,updateLike);
+    }
+    else{
+      likes[auth.currentUser.uid]="1"
+      const updateLikes = {likes:likes};
+      await updateDoc(docRef,updateLikes);
+      
+    }
+
     setLikeUpdate(!likeUpdate);
     console.log("updateLike called");
   };
@@ -74,7 +86,7 @@ function Community({ isAuth }) {
                     updateLike(post.id, post.likes);
                   }}
                 >
-                  ❤️{post.likes}
+                  {post.likes.hasOwnProperty(auth.currentUser.uid)?<button className="like-button">❤️{Object.keys(post.likes).length}</button>:<button className="like-button">🤍{Object.keys(post.likes).length}</button>}
                 </button>
                 {isAuth && auth.currentUser.uid === post.author.id && (
                   <button

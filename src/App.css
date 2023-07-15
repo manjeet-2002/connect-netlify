@@ -480,6 +480,17 @@ blockquote{
   cursor:pointer;
 }
 
+.like-button{
+  margin-right: 10px;
+  border:none;
+  color:var(--bg-primary);
+  font-size: large;
+}
+
+.like-button:hover{
+  color:crimson;
+  cursor: pointer;
+}
 /* login page css */
 .LoginPage {
   height: 100vh;
