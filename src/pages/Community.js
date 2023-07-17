@@ -29,6 +29,7 @@ function Community({ isAuth }) {
 
 
   const updateLike = async (id, likes) => {
+    if(!isAuth) navigate("/login");
     const docRef = doc(db, "posts", id);
 
     if(likes.hasOwnProperty(auth.currentUser.uid)){
@@ -86,7 +87,7 @@ function Community({ isAuth }) {
                     updateLike(post.id, post.likes);
                   }}
                 >
-                  {post.likes.hasOwnProperty(auth.currentUser.uid)?<button className="like-button">❤️{Object.keys(post.likes).length}</button>:<button className="like-button">🤍{Object.keys(post.likes).length}</button>}
+                  {(isAuth)&&post.likes.hasOwnProperty(auth.currentUser.uid)?<button className="like-button">❤️{Object.keys(post.likes).length}</button>:<button className="like-button">🤍{Object.keys(post.likes).length}</button>}
                 </button>
                 {isAuth && auth.currentUser.uid === post.author.id && (
                   <button
